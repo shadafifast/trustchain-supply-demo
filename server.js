@@ -180,8 +180,8 @@ app.get('/{*path}', (req, res) => {
 });
 
 // ─── Start Server ─────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`✅ TrustChain API server running at http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ TrustChain API server running at http://0.0.0.0:${PORT}`);
   console.log(`   API endpoints:`);
   console.log(`   GET  /api/chain`);
   console.log(`   POST /api/products`);
