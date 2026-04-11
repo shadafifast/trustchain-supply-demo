@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="TrustChain – Transparent, secure, and immutable supply chain tracking powered by blockchain technology.">
+  <title>TrustChain – Supply Chain Tracking System</title>
+  <link rel="stylesheet" href="index.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛓️</text></svg>">
+</head>
+<body>
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Mining Overlay (hidden by default) -->
+  <div id="mining-overlay" class="mining-overlay hidden">
+    <div class="mining-modal">
+      <div class="mining-spinner"></div>
+      <h3 class="mining-modal__title">⛏️ Mining Block...</h3>
+      <p class="mining-modal__nonce">Nonce: <span id="mining-nonce">0</span></p>
+      <div class="mining-modal__hash" id="mining-hash">Calculating hash...</div>
+    </div>
+  </div>
+
+  <div class="app-container">
+
+    <!-- ═══ Hero Section ═══ -->
+    <header class="hero">
+      <div class="hero__badge">
+        <span>BLOCKCHAIN POWERED</span>
+      </div>
+      <h1 class="hero__title">
+        <span class="gradient-text">TrustChain</span>
+      </h1>
+      <p class="hero__subtitle">
+        Track your products from factory to consumer with transparent, 
+        secure, and immutable blockchain technology.
+      </p>
+      <div class="stats-bar">
+        <div class="stat-item">
+          <span class="stat-item__value" id="stat-blocks">0</span>
+          <span class="stat-item__label">Total Blocks</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-item__value" id="stat-products">0</span>
+          <span class="stat-item__label">Products</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-item__value" id="stat-difficulty">3</span>
+          <span class="stat-item__label">Difficulty</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-item__value" id="stat-status">✅</span>
+          <span class="stat-item__label">Chain Status</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ═══ Navigation Tabs ═══ -->
+    <nav class="nav-tabs" id="nav-tabs">
+      <button class="nav-tab nav-tab--active" data-tab="create" id="tab-create">
+        <span class="nav-tab__icon">📦</span>
+        Create Product
+      </button>
+      <button class="nav-tab" data-tab="update" id="tab-update">
+        <span class="nav-tab__icon">🚚</span>
+        Update Location
+      </button>
+      <button class="nav-tab" data-tab="explorer" id="tab-explorer">
+        <span class="nav-tab__icon">🔗</span>
+        Blockchain Explorer
+      </button>
+      <button class="nav-tab" data-tab="validate" id="tab-validate">
+        <span class="nav-tab__icon">✅</span>
+        Validate Chain
+      </button>
+      <button class="nav-tab" data-tab="tamper" id="tab-tamper">
+        <span class="nav-tab__icon">🛡️</span>
+        Tamper Test
+      </button>
+    </nav>
+
+    <!-- ═══ Tab Panels ═══ -->
+
+    <!-- Create Product Panel -->
+    <section class="tab-panel tab-panel--active" id="panel-create">
+      <div class="section">
+        <div class="section__header">
+          <div class="section__icon section__icon--blue">📦</div>
+          <div>
+            <h2 class="section__title">Create New Product</h2>
+            <p class="section__description">Register a product on the blockchain with a genesis block</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="product-name">Product Name</label>
+              <input 
+                type="text" 
+                class="form-input" 
+                id="product-name" 
+                placeholder="e.g., Organic Coffee Beans"
+                autocomplete="off"
+              >
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="product-id">Product ID</label>
+              <input 
+                type="text" 
+                class="form-input" 
+                id="product-id" 
+                placeholder="e.g., PRD-001"
+                autocomplete="off"
+              >
+            </div>
+          </div>
+          <button class="btn btn--primary btn--full" id="btn-create-product">
+            📦 Create Product &amp; Mine Genesis Block
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Update Location Panel -->
+    <section class="tab-panel" id="panel-update">
+      <div class="section">
+        <div class="section__header">
+          <div class="section__icon section__icon--purple">🚚</div>
+          <div>
+            <h2 class="section__title">Update Product Location</h2>
+            <p class="section__description">Track product movement by adding a new block to the chain</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="update-product-select">Select Product</label>
+              <select class="form-select" id="update-product-select">
+                <option value="">-- Choose a product --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="update-location">New Location</label>
+              <input 
+                type="text" 
+                class="form-input" 
+                id="update-location" 
+                placeholder="e.g., Jakarta Warehouse"
+                autocomplete="off"
+              >
+            </div>
+          </div>
+          <button class="btn btn--primary btn--full" id="btn-update-location" disabled>
+            🚚 Update Location &amp; Mine Block
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Blockchain Explorer Panel -->
+    <section class="tab-panel" id="panel-explorer">
+      <div class="section">
+        <div class="section__header">
+          <div class="section__icon section__icon--blue">🔗</div>
+          <div>
+            <h2 class="section__title">Blockchain Explorer</h2>
+            <p class="section__description">Visual representation of the entire blockchain</p>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between mb-2 flex-wrap gap-3">
+          <div class="form-group" style="margin-bottom: 0; min-width: 220px;">
+            <select class="form-select" id="explorer-filter">
+              <option value="all">🔗 All Blocks</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="card" style="padding: 12px;">
+          <div class="blockchain-explorer" id="blockchain-explorer">
+            <div class="empty-state">
+              <div class="empty-state__icon">⛓️</div>
+              <h3 class="empty-state__title">No Blocks Yet</h3>
+              <p class="empty-state__description">Create a product to generate the first block in the chain.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Validate Chain Panel -->
+    <section class="tab-panel" id="panel-validate">
+      <div class="section">
+        <div class="section__header">
+          <div class="section__icon section__icon--green">✅</div>
+          <div>
+            <h2 class="section__title">Validate Blockchain</h2>
+            <p class="section__description">Verify the integrity and authenticity of the entire blockchain</p>
+          </div>
+        </div>
+        <div class="card">
+          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.7;">
+            Validation checks each block's hash integrity, chain linking (previous hash), 
+            and Proof of Work compliance. Any tampering will be immediately detected.
+          </p>
+          <button class="btn btn--primary" id="btn-validate-chain">
+            ✅ Validate Entire Chain
+          </button>
+          <div id="validation-results"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tamper Test Panel -->
+    <section class="tab-panel" id="panel-tamper">
+      <div class="section">
+        <div class="section__header">
+          <div class="section__icon section__icon--red">🛡️</div>
+          <div>
+            <h2 class="section__title">Tamper Test</h2>
+            <p class="section__description">Demonstrate blockchain immutability by tampering with data</p>
+          </div>
+        </div>
+        <div class="card">
+          <div class="tamper-warning">
+            <span class="tamper-warning__icon">⚠️</span>
+            <div>
+              <strong style="color: var(--red-400);">Warning:</strong> This will deliberately modify 
+              a block's data WITHOUT re-mining, which will break the chain's integrity. 
+              Use the Validate Chain tab after tampering to see the blockchain detect the manipulation.
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="tamper-block-select">Select Block to Tamper</label>
+              <select class="form-select" id="tamper-block-select">
+                <option value="">-- Choose a block --</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="tamper-new-location">Fake Location</label>
+              <input 
+                type="text" 
+                class="form-input" 
+                id="tamper-new-location" 
+                placeholder="e.g., Fake Warehouse"
+                autocomplete="off"
+              >
+            </div>
+          </div>
+          <div class="flex gap-3 flex-wrap">
+            <button class="btn btn--danger" id="btn-tamper" disabled>
+              💀 Tamper Block Data
+            </button>
+            <button class="btn btn--outline" id="btn-reset-chain">
+              🔄 Reset Blockchain
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ Footer ═══ -->
+    <footer class="footer">
+      <p class="footer__text">
+        Built with <span class="gradient-text">TrustChain</span> — Blockchain Supply Chain Demo &copy; 2026
+      </p>
+    </footer>
+
+  </div>
+
+  <script src="blockchain.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
