@@ -1071,3 +1071,133 @@ body::after {
 .justify-between {
   justify-content: space-between;
 }
+
+/* ─── Demo Banner ─────────────────────────────────────────────── */
+.demo-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 24px auto 0;
+  max-width: 760px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.06), rgba(234, 179, 8, 0.04));
+  border: 1px solid rgba(250, 204, 21, 0.25);
+  border-radius: var(--radius-lg);
+  animation: demoBannerIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: 0.4s;
+  opacity: 0;
+}
+
+@keyframes demoBannerIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.demo-banner__content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.demo-banner__icon {
+  font-size: 1.6rem;
+  animation: rocketBounce 2s ease-in-out infinite;
+}
+
+@keyframes rocketBounce {
+  0%, 100% { transform: translateY(0) rotate(-10deg); }
+  50%       { transform: translateY(-6px) rotate(-10deg); }
+}
+
+.demo-banner__text {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.demo-banner__text strong {
+  color: #fde68a;
+  font-weight: 700;
+}
+
+/* Demo CTA Button */
+.btn--demo {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #1c1002;
+  font-weight: 700;
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.35);
+  transition: all var(--transition-base);
+  animation: demoGlow 2.5s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes demoGlow {
+  0%, 100% { box-shadow: 0 4px 20px rgba(245, 158, 11, 0.35); }
+  50%       { box-shadow: 0 4px 32px rgba(245, 158, 11, 0.6); }
+}
+
+.btn--demo:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 8px 30px rgba(245, 158, 11, 0.5);
+}
+
+.btn--demo:active {
+  transform: translateY(0) scale(1);
+}
+
+/* ─── Journey Timeline (inside block cards) ───────────────────── */
+.journey-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.journey-step:last-child {
+  border-bottom: none;
+}
+
+.journey-step__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--cyan-400);
+  box-shadow: 0 0 6px var(--cyan-400);
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.journey-step__dot--origin {
+  background: var(--green-400);
+  box-shadow: 0 0 6px var(--green-400);
+}
+
+.journey-step__dot--final {
+  background: var(--amber-400);
+  box-shadow: 0 0 6px var(--amber-400);
+}
+
+.journey-step__location {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.journey-step__time {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
