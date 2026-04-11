@@ -9,6 +9,7 @@ const API_BASE = '';  // Same origin — server serves the frontend too
 
 // ─── State ───────────────────────────────────────────────────────────────────
 let currentChainData = { chain: [], products: {}, stats: { totalBlocks: 0, totalProducts: 0, difficulty: 3, isValid: null } };
+let lastValidationResults = []; // stores block-level validity from /api/validate
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -167,14 +168,9 @@ function renderBlockchain(chain, difficulty = 3) {
     return;
   }
 
-  // Compute validity map
+  // Build validity map from last known validation results
   const validMap = {};
-  if (currentChainData.chain.length > 0) {
-    // We need full chain for linking validation, but just flag blocks
-    (currentChainData.stats.isValid === false ? [] : []).forEach(r => {
-      validMap[r.blockIndex] = r.valid;
-    });
-  }
+  lastValidationResults.forEach(r => { validMap[r.blockIndex] = r.valid; });
 
   let html = '<div class="blockchain-chain">';
   chain.forEach((block, i) => {
@@ -182,19 +178,22 @@ function renderBlockchain(chain, difficulty = 3) {
       const product = currentChainData.products[block.productId];
       return product && product.blockIndices[0] === block.index;
     })();
+    // If we have validation data, use it; otherwise assume valid
+    const hasValidation = Object.keys(validMap).length > 0;
+    const isValid = hasValidation ? (validMap[block.index] !== false) : true;
     const delay = i * 0.06;
 
     if (i > 0) {
-      html += `<div class="chain-link"><div class="chain-link__line"></div></div>`;
+      html += `<div class="chain-link ${!isValid ? 'chain-link--invalid' : ''}"><div class="chain-link__line"></div></div>`;
     }
 
     html += `
       <div class="block-wrapper" style="animation-delay: ${delay}s">
-        <div class="block-card ${isGenesis ? 'block-card--genesis' : ''}">
+        <div class="block-card ${isGenesis ? 'block-card--genesis' : ''} ${!isValid ? 'block-card--invalid' : ''}">
           <div class="block-card__header">
             <span class="block-card__index">Block #${block.index}</span>
             ${isGenesis ? '<span class="block-card__genesis-badge">GENESIS</span>' : ''}
-            <span class="block-card__status"></span>
+            <span class="block-card__status ${!isValid ? 'block-card__status--invalid' : ''}"></span>
           </div>
           <div class="block-card__product">${escapeHtml(block.productName)}</div>
           <div class="block-card__location">${escapeHtml(block.location)}</div>
@@ -261,8 +260,17 @@ function initValidation() {
       html += '</div></div>';
       container.innerHTML = html;
 
-      // Refresh stats
+      // Store validation results for visual rendering in explorer
+      lastValidationResults = result.results || [];
+
+      // Refresh chain from server, then re-render explorer with validity data
       await loadChainFromServer();
+
+      // Re-render explorer with validity highlighted
+      const explorerPanel = document.getElementById('panel-explorer');
+      if (explorerPanel && explorerPanel.classList.contains('tab-panel--active')) {
+        renderBlockchain(currentChainData.chain, currentChainData.stats.difficulty);
+      }
     } catch (err) {
       showToast(`❌ ${err.message}`, 'error');
     }

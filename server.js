@@ -159,6 +159,8 @@ app.post('/api/reset', (req, res) => {
 app.post('/api/seed', (req, res) => {
   try {
     console.log('[TrustChain] Starting demo seed on server...');
+    // Always start fresh so seed never stacks on top of existing data
+    blockchain = new Blockchain();
     const seeded = blockchain.seedDemo();
     blockchain.save();
     console.log(`[TrustChain] Demo seed complete. ${seeded.length} blocks mined.`);
