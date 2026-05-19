@@ -1,0 +1,10 @@
+node_modules
+npm-debug.log
+.git
+.gitignore
+
+# Kita mengabaikan database dan file lokal yang dibuat saat testing di komputer Anda,
+# sehingga container Docker akan selalu mulai dari kondisi bersih (fresh start).
+database.json
+uploads/
+qrcodes/

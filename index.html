@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="TrustChain – Transparent, secure, and immutable supply chain tracking powered by blockchain technology.">
-  <title>TrustChain – Supply Chain Tracking System</title>
+  <meta name="description" content="TrustChain v2.0 – Advanced blockchain supply chain tracking with multi-transaction blocks, image verification, insurance smart contracts, and QR tracking.">
+  <title>TrustChain v2.0 – Advanced Blockchain Supply Chain</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="index.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⛓️</text></svg>">
 </head>
@@ -13,55 +15,92 @@
   <!-- Toast Container -->
   <div id="toast-container" class="toast-container"></div>
 
-  <!-- Mining Overlay (hidden by default) -->
+  <!-- Mining Overlay -->
   <div id="mining-overlay" class="mining-overlay hidden">
     <div class="mining-modal">
       <div class="mining-spinner"></div>
       <h3 class="mining-modal__title">⛏️ Mining Block...</h3>
-      <p class="mining-modal__nonce">Nonce: <span id="mining-nonce">0</span></p>
+      <p class="mining-modal__subtitle">Proof of Work in progress on server</p>
+      <p class="mining-modal__nonce">Nonce: <span id="mining-nonce">—</span></p>
       <div class="mining-modal__hash" id="mining-hash">Calculating hash...</div>
+    </div>
+  </div>
+
+  <!-- Product History Modal -->
+  <div id="history-modal" class="modal-overlay hidden">
+    <div class="modal">
+      <div class="modal__header">
+        <div>
+          <h3 class="modal__title" id="modal-product-name">Product History</h3>
+          <p class="modal__subtitle" id="modal-product-id"></p>
+        </div>
+        <button class="modal__close" id="modal-close" aria-label="Close">✕</button>
+      </div>
+      <div class="modal__body" id="modal-body"></div>
     </div>
   </div>
 
   <div class="app-container">
 
-    <!-- ═══ Hero Section ═══ -->
+    <!-- ═══ Hero ═══ -->
     <header class="hero">
       <div class="hero__badge">
-        <span>BLOCKCHAIN POWERED</span>
+        <span class="hero__badge-dot"></span>
+        TRUSTCHAIN v2.0 — BLOCKCHAIN POWERED
       </div>
       <h1 class="hero__title">
         <span class="gradient-text">TrustChain</span>
+        <span class="hero__version">v2.0</span>
       </h1>
       <p class="hero__subtitle">
-        Track your products from factory to consumer with transparent, 
-        secure, and immutable blockchain technology.
+        Advanced supply chain tracking with multi-transaction blocks, image verification,
+        insurance smart contracts &amp; QR tracking.
       </p>
+
+      <!-- Stats Bar -->
       <div class="stats-bar">
         <div class="stat-item">
           <span class="stat-item__value" id="stat-blocks">0</span>
-          <span class="stat-item__label">Total Blocks</span>
+          <span class="stat-item__label">Blocks</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-item__value" id="stat-transactions">0</span>
+          <span class="stat-item__label">Transactions</span>
         </div>
         <div class="stat-item">
           <span class="stat-item__value" id="stat-products">0</span>
           <span class="stat-item__label">Products</span>
         </div>
         <div class="stat-item">
+          <span class="stat-item__value" id="stat-pending">0</span>
+          <span class="stat-item__label">Pending</span>
+        </div>
+        <div class="stat-item">
           <span class="stat-item__value" id="stat-difficulty">3</span>
           <span class="stat-item__label">Difficulty</span>
         </div>
         <div class="stat-item">
-          <span class="stat-item__value" id="stat-status">✅</span>
+          <span class="stat-item__value" id="stat-status">—</span>
           <span class="stat-item__label">Chain Status</span>
         </div>
       </div>
 
-      <!-- Demo Data Banner -->
+      <!-- Pending Pool Banner -->
+      <div class="pending-banner" id="pending-banner" style="display:none">
+        <span class="pending-banner__icon">⏳</span>
+        <div class="pending-banner__text">
+          <strong id="pending-count-label">0 transactions</strong> pending in the pool
+          — will auto-mine when 3 are reached.
+        </div>
+        <button class="btn btn--sm btn--outline" id="btn-flush-pending">⛏️ Force Mine Now</button>
+      </div>
+
+      <!-- Demo Banner -->
       <div class="demo-banner" id="demo-banner">
         <div class="demo-banner__content">
           <span class="demo-banner__icon">🚀</span>
           <div class="demo-banner__text">
-            <strong>First time here?</strong> Load the interactive demo to see 3 products tracked across a live blockchain — from factory floor to retail shelf.
+            <strong>New to TrustChain v2.0?</strong> Load the interactive demo — 5 blocks, 15 transactions, 3 products with insurance smart contracts &amp; QR codes.
           </div>
         </div>
         <button class="btn btn--demo" id="btn-load-demo" onclick="loadDemoData()">
@@ -70,202 +109,392 @@
       </div>
     </header>
 
-    <!-- ═══ Navigation Tabs ═══ -->
+    <!-- ═══ Navigation ═══ -->
     <nav class="nav-tabs" id="nav-tabs">
       <button class="nav-tab nav-tab--active" data-tab="create" id="tab-create">
         <span class="nav-tab__icon">📦</span>
         Create Product
       </button>
-      <button class="nav-tab" data-tab="update" id="tab-update">
-        <span class="nav-tab__icon">🚚</span>
-        Update Location
+      <button class="nav-tab" data-tab="transact" id="tab-transact">
+        <span class="nav-tab__icon">🔄</span>
+        Add Transaction
       </button>
       <button class="nav-tab" data-tab="explorer" id="tab-explorer">
         <span class="nav-tab__icon">🔗</span>
-        Blockchain Explorer
+        Block Explorer
+      </button>
+      <button class="nav-tab" data-tab="insurance" id="tab-insurance">
+        <span class="nav-tab__icon">🛡️</span>
+        Insurance
+      </button>
+      <button class="nav-tab" data-tab="qr" id="tab-qr">
+        <span class="nav-tab__icon">📱</span>
+        QR Tracker
       </button>
       <button class="nav-tab" data-tab="validate" id="tab-validate">
         <span class="nav-tab__icon">✅</span>
-        Validate Chain
+        Validate
       </button>
       <button class="nav-tab" data-tab="tamper" id="tab-tamper">
-        <span class="nav-tab__icon">🛡️</span>
+        <span class="nav-tab__icon">⚠️</span>
         Tamper Test
       </button>
     </nav>
 
     <!-- ═══ Tab Panels ═══ -->
 
-    <!-- Create Product Panel -->
+    <!-- CREATE PRODUCT -->
     <section class="tab-panel tab-panel--active" id="panel-create">
       <div class="section">
         <div class="section__header">
           <div class="section__icon section__icon--blue">📦</div>
           <div>
             <h2 class="section__title">Create New Product</h2>
-            <p class="section__description">Register a product on the blockchain with a genesis block</p>
+            <p class="section__description">Register a product on the blockchain. A genesis transaction is immediately mined into a block.</p>
           </div>
         </div>
         <div class="card">
           <div class="grid-2">
             <div class="form-group">
               <label class="form-label" for="product-name">Product Name</label>
-              <input 
-                type="text" 
-                class="form-input" 
-                id="product-name" 
-                placeholder="e.g., Organic Coffee Beans"
-                autocomplete="off"
-              >
+              <input type="text" class="form-input" id="product-name" placeholder="e.g., Organic Coffee Beans" autocomplete="off">
             </div>
             <div class="form-group">
               <label class="form-label" for="product-id">Product ID</label>
-              <input 
-                type="text" 
-                class="form-input" 
-                id="product-id" 
-                placeholder="e.g., PRD-001"
-                autocomplete="off"
-              >
+              <input type="text" class="form-input" id="product-id" placeholder="e.g., PRD-001" autocomplete="off">
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="product-insurance">Insurance Type</label>
+              <select class="form-select" id="product-insurance">
+                <option value="None">🚫 No Insurance</option>
+                <option value="Basic">🛡️ Basic — covers damage (max $1,000)</option>
+                <option value="Premium">🛡️🛡️ Premium — damage + loss (max $5,000)</option>
+                <option value="Full Protection">🛡️🛡️🛡️ Full Protection — all risks (max $15,000)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="product-notes">Notes (optional)</label>
+              <input type="text" class="form-input" id="product-notes" placeholder="e.g., Fragile — handle with care" autocomplete="off">
             </div>
           </div>
           <button class="btn btn--primary btn--full" id="btn-create-product">
             📦 Create Product &amp; Mine Genesis Block
           </button>
         </div>
+
+        <!-- Feature info cards -->
+        <div class="feature-grid">
+          <div class="feature-card">
+            <div class="feature-card__icon">🧱</div>
+            <h4 class="feature-card__title">Multi-Tx Blocks</h4>
+            <p class="feature-card__desc">1 block holds up to 3 transactions before mining triggers automatically.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card__icon">🖼️</div>
+            <h4 class="feature-card__title">Image Verification</h4>
+            <p class="feature-card__desc">Upload product photos — SHA-256 hash stored on-chain for tamper detection.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card__icon">📋</div>
+            <h4 class="feature-card__title">Smart Contract Insurance</h4>
+            <p class="feature-card__desc">Status changes auto-evaluate claims: Damaged → Approved, no manual review.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-card__icon">📱</div>
+            <h4 class="feature-card__title">QR Code Tracking</h4>
+            <p class="feature-card__desc">Every product gets a unique QR linking to its full blockchain history.</p>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- Update Location Panel -->
-    <section class="tab-panel" id="panel-update">
+    <!-- ADD TRANSACTION -->
+    <section class="tab-panel" id="panel-transact">
       <div class="section">
         <div class="section__header">
-          <div class="section__icon section__icon--purple">🚚</div>
+          <div class="section__icon section__icon--purple">🔄</div>
           <div>
-            <h2 class="section__title">Update Product Location</h2>
-            <p class="section__description">Track product movement by adding a new block to the chain</p>
+            <h2 class="section__title">Add Transaction</h2>
+            <p class="section__description">Record a supply chain event. Transactions are pooled and mined automatically every 3 transactions.</p>
           </div>
         </div>
         <div class="card">
           <div class="grid-2">
             <div class="form-group">
-              <label class="form-label" for="update-product-select">Select Product</label>
-              <select class="form-select" id="update-product-select">
+              <label class="form-label" for="tx-product-select">Select Product</label>
+              <select class="form-select" id="tx-product-select">
                 <option value="">-- Choose a product --</option>
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label" for="update-location">New Location</label>
-              <input 
-                type="text" 
-                class="form-input" 
-                id="update-location" 
-                placeholder="e.g., Jakarta Warehouse"
-                autocomplete="off"
-              >
+              <label class="form-label" for="tx-status">Product Status</label>
+              <select class="form-select" id="tx-status">
+                <option value="Created">🟢 Created</option>
+                <option value="In Warehouse">🏭 In Warehouse</option>
+                <option value="In Transit" selected>🚚 In Transit</option>
+                <option value="Delivered">✅ Delivered</option>
+                <option value="Damaged">🔴 Damaged</option>
+                <option value="Lost">⚫ Lost</option>
+              </select>
             </div>
           </div>
-          <button class="btn btn--primary btn--full" id="btn-update-location" disabled>
-            🚚 Update Location &amp; Mine Block
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="tx-from">From (Role)</label>
+              <select class="form-select" id="tx-from">
+                <option value="Factory">🏭 Factory</option>
+                <option value="Warehouse">🏢 Warehouse</option>
+                <option value="Distributor">🚛 Distributor</option>
+                <option value="Retailer">🏪 Retailer</option>
+                <option value="Customer">👤 Customer</option>
+                <option value="Insurance Provider">📋 Insurance Provider</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="tx-to">To (Role)</label>
+              <select class="form-select" id="tx-to">
+                <option value="Warehouse">🏢 Warehouse</option>
+                <option value="Distributor">🚛 Distributor</option>
+                <option value="Retailer">🏪 Retailer</option>
+                <option value="Customer">👤 Customer</option>
+                <option value="Factory">🏭 Factory</option>
+                <option value="Insurance Provider">📋 Insurance Provider</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="tx-notes">Notes</label>
+              <input type="text" class="form-input" id="tx-notes" placeholder="e.g., Arrived at cold storage, −20°C" autocomplete="off">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="tx-image">Product Image (optional)</label>
+              <div class="upload-area" id="upload-area">
+                <input type="file" id="tx-image" accept="image/*" class="upload-input">
+                <div class="upload-area__content" id="upload-placeholder">
+                  <span class="upload-area__icon">📷</span>
+                  <span class="upload-area__text">Click or drag to upload image</span>
+                  <span class="upload-area__sub">Max 5MB — Hash auto-generated</span>
+                </div>
+                <div class="upload-preview hidden" id="upload-preview">
+                  <img id="upload-preview-img" src="" alt="Preview" class="upload-preview__img">
+                  <div class="upload-preview__info">
+                    <span id="upload-preview-name" class="upload-preview__name"></span>
+                    <button class="upload-clear" id="upload-clear">✕ Remove</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Smart contract preview -->
+          <div class="smart-contract-preview" id="smart-contract-preview" style="display:none">
+            <div class="smart-contract-preview__header">
+              <span class="smart-contract-preview__icon">📋</span>
+              <strong>Smart Contract Preview</strong>
+            </div>
+            <div class="smart-contract-preview__body" id="smart-contract-body"></div>
+          </div>
+
+          <button class="btn btn--primary btn--full" id="btn-add-transaction" disabled>
+            🔄 Add Transaction to Pool
           </button>
+          <p class="tx-threshold-note">⛏️ A new block is automatically mined every <strong>3 transactions</strong>.</p>
         </div>
       </div>
     </section>
 
-    <!-- Blockchain Explorer Panel -->
+    <!-- BLOCK EXPLORER -->
     <section class="tab-panel" id="panel-explorer">
       <div class="section">
         <div class="section__header">
           <div class="section__icon section__icon--blue">🔗</div>
           <div>
-            <h2 class="section__title">Blockchain Explorer</h2>
-            <p class="section__description">Visual representation of the entire blockchain</p>
+            <h2 class="section__title">Block Explorer</h2>
+            <p class="section__description">Visual blockchain — each block contains multiple transactions</p>
           </div>
         </div>
 
-        <div class="flex items-center justify-between mb-2 flex-wrap gap-3">
-          <div class="form-group" style="margin-bottom: 0; min-width: 220px;">
+        <div class="explorer-controls">
+          <div class="form-group" style="margin-bottom:0; min-width:240px;">
             <select class="form-select" id="explorer-filter">
               <option value="all">🔗 All Blocks</option>
             </select>
           </div>
+          <div class="explorer-legend">
+            <div class="explorer-legend__item">
+              <span class="explorer-legend__dot" style="background:#10b981;box-shadow:0 0 5px rgba(16,185,129,0.5)"></span>
+              Valid block
+            </div>
+            <div class="explorer-legend__item">
+              <span class="explorer-legend__dot" style="background:#ef4444;box-shadow:0 0 5px rgba(239,68,68,0.5)"></span>
+              Tampered
+            </div>
+            <div class="explorer-legend__item">
+              <span style="font-family:monospace;font-size:13px;color:#60a5fa">⎘</span>
+              Copy hash
+            </div>
+          </div>
         </div>
 
-        <div class="card" style="padding: 12px;">
+        <div class="card" style="padding:12px 8px;">
           <div class="blockchain-explorer" id="blockchain-explorer">
             <div class="empty-state">
               <div class="empty-state__icon">⛓️</div>
               <h3 class="empty-state__title">No Blocks Yet</h3>
-              <p class="empty-state__description">Create a product to generate the first block in the chain.</p>
+              <p class="empty-state__description">Create a product to generate the first block.</p>
             </div>
+          </div>
+        </div>
+
+        <!-- Pending Pool -->
+        <div id="pending-pool-section" style="display:none">
+          <div id="pending-pool-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INSURANCE -->
+    <section class="tab-panel" id="panel-insurance">
+      <div class="section">
+        <div class="section__header">
+          <div class="section__icon section__icon--green">📋</div>
+          <div>
+            <h2 class="section__title">Insurance Smart Contracts</h2>
+            <p class="section__description">Automated claim evaluation based on product status — no manual review required</p>
+          </div>
+        </div>
+
+        <!-- Smart contract rules display -->
+        <div class="contract-rules-card card">
+          <h4 class="contract-rules__title">⚖️ Smart Contract Rules</h4>
+          <div class="contract-rules-grid">
+            <div class="contract-rule">
+              <span class="contract-rule__type">Basic</span>
+              <div class="contract-rule__logic">
+                <code>IF status = "Damaged" → <span class="approved">Approved</span></code>
+                <code>OTHERWISE → <span class="denied">Denied</span></code>
+              </div>
+            </div>
+            <div class="contract-rule">
+              <span class="contract-rule__type contract-rule__type--premium">Premium</span>
+              <div class="contract-rule__logic">
+                <code>IF status = "Damaged" OR "Lost" → <span class="approved">Approved</span></code>
+                <code>OTHERWISE → <span class="denied">Denied</span></code>
+              </div>
+            </div>
+            <div class="contract-rule">
+              <span class="contract-rule__type contract-rule__type--full">Full Protection</span>
+              <div class="contract-rule__logic">
+                <code>IF status = "Damaged" OR "Lost" OR "In Transit" → <span class="approved">Approved</span></code>
+                <code>OTHERWISE → <span class="denied">Denied</span></code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="insurance-list">
+          <div class="empty-state">
+            <div class="empty-state__icon">📋</div>
+            <h3 class="empty-state__title">No Insured Products</h3>
+            <p class="empty-state__description">Create products with insurance to see smart contract evaluations here.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Validate Chain Panel -->
+    <!-- QR TRACKER -->
+    <section class="tab-panel" id="panel-qr">
+      <div class="section">
+        <div class="section__header">
+          <div class="section__icon section__icon--purple">📱</div>
+          <div>
+            <h2 class="section__title">QR Code Tracker</h2>
+            <p class="section__description">Scan a product QR code to view its full blockchain history</p>
+          </div>
+        </div>
+        <div id="qr-grid">
+          <div class="empty-state">
+            <div class="empty-state__icon">📱</div>
+            <h3 class="empty-state__title">No QR Codes Yet</h3>
+            <p class="empty-state__description">QR codes are generated automatically when you create products.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VALIDATE -->
     <section class="tab-panel" id="panel-validate">
       <div class="section">
         <div class="section__header">
           <div class="section__icon section__icon--green">✅</div>
           <div>
             <h2 class="section__title">Validate Blockchain</h2>
-            <p class="section__description">Verify the integrity and authenticity of the entire blockchain</p>
+            <p class="section__description">Verify hash integrity, chain linking, Proof of Work, image hashes, and transaction integrity</p>
           </div>
         </div>
         <div class="card">
-          <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.7;">
-            Validation checks each block's hash integrity, chain linking (previous hash), 
-            and Proof of Work compliance. Any tampering will be immediately detected.
-          </p>
+          <div class="validation-checks">
+            <div class="validation-check"><span>🔐</span> SHA-256 Hash Integrity</div>
+            <div class="validation-check"><span>🔗</span> Previous Hash Chaining</div>
+            <div class="validation-check"><span>⛏️</span> Proof of Work Validity</div>
+            <div class="validation-check"><span>🖼️</span> Image Hash Verification</div>
+            <div class="validation-check"><span>📦</span> Transaction Integrity</div>
+          </div>
           <button class="btn btn--primary" id="btn-validate-chain">
-            ✅ Validate Entire Chain
+            ✅ Run Full Chain Validation
           </button>
           <div id="validation-results"></div>
         </div>
       </div>
     </section>
 
-    <!-- Tamper Test Panel -->
+    <!-- TAMPER TEST -->
     <section class="tab-panel" id="panel-tamper">
       <div class="section">
         <div class="section__header">
-          <div class="section__icon section__icon--red">🛡️</div>
+          <div class="section__icon section__icon--red">⚠️</div>
           <div>
             <h2 class="section__title">Tamper Test</h2>
-            <p class="section__description">Demonstrate blockchain immutability by tampering with data</p>
+            <p class="section__description">Demonstrate blockchain immutability by modifying a transaction without re-mining</p>
           </div>
         </div>
         <div class="card">
           <div class="tamper-warning">
             <span class="tamper-warning__icon">⚠️</span>
             <div>
-              <strong style="color: var(--red-400);">Warning:</strong> This will deliberately modify 
-              a block's data WITHOUT re-mining, which will break the chain's integrity. 
-              Use the Validate Chain tab after tampering to see the blockchain detect the manipulation.
+              <strong style="color:var(--red-400)">Warning:</strong> This deliberately modifies a transaction's status WITHOUT re-mining.
+              Use "Validate Chain" after tampering to see the detected manipulation.
             </div>
           </div>
           <div class="grid-2">
             <div class="form-group">
-              <label class="form-label" for="tamper-block-select">Select Block to Tamper</label>
+              <label class="form-label" for="tamper-block-select">Select Block</label>
               <select class="form-select" id="tamper-block-select">
                 <option value="">-- Choose a block --</option>
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label" for="tamper-new-location">Fake Location</label>
-              <input 
-                type="text" 
-                class="form-input" 
-                id="tamper-new-location" 
-                placeholder="e.g., Fake Warehouse"
-                autocomplete="off"
-              >
+              <label class="form-label" for="tamper-tx-select">Select Transaction in Block</label>
+              <select class="form-select" id="tamper-tx-select">
+                <option value="0">Transaction #0</option>
+              </select>
             </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="tamper-new-status">New Status (fake)</label>
+            <select class="form-select" id="tamper-new-status">
+              <option value="Damaged">🔴 Damaged</option>
+              <option value="Lost">⚫ Lost</option>
+              <option value="Delivered">✅ Delivered</option>
+              <option value="In Transit">🚚 In Transit</option>
+            </select>
           </div>
           <div class="flex gap-3 flex-wrap">
             <button class="btn btn--danger" id="btn-tamper" disabled>
-              💀 Tamper Block Data
+              💀 Tamper Transaction Data
             </button>
             <button class="btn btn--outline" id="btn-reset-chain">
               🔄 Reset Blockchain
@@ -275,14 +504,16 @@
       </div>
     </section>
 
-    <!-- ═══ Footer ═══ -->
+    <!-- Footer -->
     <footer class="footer">
       <p class="footer__text">
-        Built with <span class="gradient-text">TrustChain</span> — Blockchain Supply Chain Demo &copy; 2026
+        Built with <span class="gradient-text">TrustChain v2.0</span> —
+        Multi-Transaction Blocks · Image Hashing · Smart Contract Insurance · QR Tracking
+        &copy; 2026
       </p>
     </footer>
 
-  </div>
+  </div><!-- .app-container -->
 
   <script src="app.js"></script>
 </body>
